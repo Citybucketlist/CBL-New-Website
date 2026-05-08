@@ -1,0 +1,212 @@
+/* ════════════════════════════════════════════════════════════════
+   CityBucketList — Colors & Type
+   Source of truth for the CBL visual system.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Fonts ─────────────────────────────────────────────────────── */
+/* All four brand families are self-hosted from /fonts/ (no CDN). */
+
+/* Barlow Condensed — display face (proxy for Myriad Pro Condensed) */
+@font-face { font-family:"Barlow Condensed"; font-style:normal; font-weight:600; font-display:swap;
+  src:url("fonts/barlow-condensed-600.woff2") format("woff2"); }
+@font-face { font-family:"Barlow Condensed"; font-style:normal; font-weight:700; font-display:swap;
+  src:url("fonts/barlow-condensed-700.woff2") format("woff2"); }
+@font-face { font-family:"Barlow Condensed"; font-style:normal; font-weight:800; font-display:swap;
+  src:url("fonts/barlow-condensed-800.woff2") format("woff2"); }
+@font-face { font-family:"Barlow Condensed"; font-style:normal; font-weight:900; font-display:swap;
+  src:url("fonts/barlow-condensed-900.woff2") format("woff2"); }
+
+/* Inter — body / UI */
+@font-face { font-family:"Inter"; font-style:normal; font-weight:400; font-display:swap;
+  src:url("fonts/inter-400.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:500; font-display:swap;
+  src:url("fonts/inter-500.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:600; font-display:swap;
+  src:url("fonts/inter-600.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:700; font-display:swap;
+  src:url("fonts/inter-700.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:800; font-display:swap;
+  src:url("fonts/inter-800.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:900; font-display:swap;
+  src:url("fonts/inter-900.woff2") format("woff2"); }
+
+/* Playfair Display — editorial italic */
+@font-face { font-family:"Playfair Display"; font-style:normal; font-weight:600; font-display:swap;
+  src:url("fonts/playfair-display-600.woff2") format("woff2"); }
+@font-face { font-family:"Playfair Display"; font-style:normal; font-weight:700; font-display:swap;
+  src:url("fonts/playfair-display-700.woff2") format("woff2"); }
+@font-face { font-family:"Playfair Display"; font-style:italic; font-weight:400; font-display:swap;
+  src:url("fonts/playfair-display-400-italic.woff2") format("woff2"); }
+@font-face { font-family:"Playfair Display"; font-style:italic; font-weight:600; font-display:swap;
+  src:url("fonts/playfair-display-600-italic.woff2") format("woff2"); }
+
+/* JetBrains Mono — mono / eyebrow */
+@font-face { font-family:"JetBrains Mono"; font-style:normal; font-weight:400; font-display:swap;
+  src:url("fonts/jetbrains-mono-400.woff2") format("woff2"); }
+@font-face { font-family:"JetBrains Mono"; font-style:normal; font-weight:500; font-display:swap;
+  src:url("fonts/jetbrains-mono-500.woff2") format("woff2"); }
+
+:root {
+  /* ── Brand Colors ──────────────────────────────────────────── */
+  /* CBL Gold — sampled directly from `uploads/citybucketlist logo Vertical.png`
+     (#C99742, the actual logo ink). Gold Light is used for hover/rollover;
+     Gold Deep for pressed/active. No other oranges. */
+  --cbl-gold:          #C99742;  /* primary brand — matches the logo exactly */
+  --cbl-gold-light:    #DDB15F;  /* hover / rollover */
+  --cbl-gold-deep:     #A07728;  /* pressed / active */
+  --cbl-gold-alpha-15: rgba(201,151,66,0.15);
+  --cbl-gold-alpha-30: rgba(201,151,66,0.30);
+
+  /* ── Neutrals — black-first ────────────────────────────────── */
+  --cbl-black:         #000000;  /* true black — app backgrounds */
+  --cbl-ink:           #0A0A0A;  /* web page background */
+  --cbl-surface:       #141414;  /* cards, panels */
+  --cbl-surface-2:     #1A1A1A;  /* hover card */
+  --cbl-surface-3:     #222222;  /* raised tile */
+  --cbl-white:         #FFFFFF;
+
+  /* Text scale */
+  --cbl-fg:            #FFFFFF;
+  --cbl-fg-body:       #B8B8B8;
+  --cbl-fg-muted:      #707070;
+  --cbl-fg-dim:        #888888;   /* Figma secondary text */
+  --cbl-fg-soft:       #9B9B9B;   /* Figma tertiary text */
+
+  /* Lines + borders */
+  --cbl-line:          rgba(255,255,255,0.08);
+  --cbl-line-strong:   rgba(255,255,255,0.18);
+  --cbl-line-gold:     rgba(201,151,66,0.30);
+
+  /* Semantic colors pulled from Figma (status states in the app) */
+  --cbl-success:       #4ADE80;   /* driver online / go */
+  --cbl-success-2:     #4DBF66;   /* alt success */
+  --cbl-accent-purple: #8A38F5;   /* concierge / premium accent */
+
+  /* ── Radii ─────────────────────────────────────────────────── */
+  --cbl-radius-sm:  6px;
+  --cbl-radius-md:  12px;
+  --cbl-radius-lg:  16px;
+  --cbl-radius-pill: 999px;
+
+  /* Signature "CBL Diagonal Corner" treatment used on photo framing.
+     Used on hero portraits, team photos, article imagery on the marketing site. */
+  --cbl-corner-lg:  24px 0 24px 0;
+  --cbl-corner-md:  18px 0 18px 0;
+  --cbl-corner-sm:  12px 0 12px 0;
+
+  /* ── Shadows & elevation ───────────────────────────────────── */
+  --cbl-shadow-button: 0 4px 4px rgba(0,0,0,0.25), 0 4px 4px rgba(0,0,0,0.25);
+  --cbl-shadow-card:   0 8px 24px rgba(0,0,0,0.35);
+  --cbl-shadow-lift:   0 14px 40px rgba(0,0,0,0.55);
+  --cbl-glow-gold:     0 0 0 4px rgba(201,151,66,0.25);  /* matches --cbl-gold */
+
+  /* ── Spacing ───────────────────────────────────────────────── */
+  --cbl-space-1:  4px;
+  --cbl-space-2:  8px;
+  --cbl-space-3:  12px;
+  --cbl-space-4:  16px;
+  --cbl-space-5:  24px;
+  --cbl-space-6:  32px;
+  --cbl-space-7:  48px;
+  --cbl-space-8:  64px;
+  --cbl-space-9:  96px;
+  --cbl-space-10: 128px;
+
+  /* ── Type families ─────────────────────────────────────────── */
+  --cbl-font-display: "Barlow Condensed", "Myriad Pro", "Oswald", "Arial Narrow", sans-serif;
+  --cbl-font-body:    "Inter", "Myriad Pro", system-ui, -apple-system, sans-serif;
+  --cbl-font-serif:   "Playfair Display", Georgia, serif; /* editorial italic accent */
+  --cbl-font-mono:    "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* ── Type scale ────────────────────────────────────────────── */
+  --cbl-text-micro: 10px;
+  --cbl-text-xs:   12px;
+  --cbl-text-sm:   14px;
+  --cbl-text-base: 16px;
+  --cbl-text-md:   18px;
+  --cbl-text-lg:   22px;
+  --cbl-text-xl:   28px;
+  --cbl-text-2xl:  40px;
+  --cbl-text-3xl:  56px;
+  --cbl-text-4xl:  88px;
+  --cbl-text-5xl:  120px;
+}
+
+/* ── Semantic element defaults ───────────────────────────────── */
+.cbl {
+  background: var(--cbl-ink);
+  color: var(--cbl-fg);
+  font-family: var(--cbl-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.cbl h1, .cbl-h1 {
+  font-family: var(--cbl-font-display);
+  font-weight: 900;
+  font-size: clamp(64px, 8vw, 120px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--cbl-white);
+}
+.cbl h2, .cbl-h2 {
+  font-family: var(--cbl-font-display);
+  font-weight: 800;
+  font-size: clamp(44px, 5.5vw, 72px);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--cbl-white);
+}
+.cbl h3, .cbl-h3 {
+  font-family: var(--cbl-font-display);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+.cbl h4, .cbl-h4 {
+  font-family: var(--cbl-font-body);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.25;
+}
+.cbl p, .cbl-p {
+  font-family: var(--cbl-font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--cbl-fg-body);
+}
+.cbl-lede {
+  font-size: 22px;
+  line-height: 1.45;
+  color: var(--cbl-fg-body);
+  font-weight: 500;
+}
+.cbl-eyebrow {
+  font-family: var(--cbl-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cbl-fg-muted);
+  text-transform: lowercase;
+}
+.cbl-label {                  /* all-caps gold section label */
+  font-family: var(--cbl-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cbl-gold);
+}
+.cbl-italic {                 /* editorial italic accent */
+  font-family: var(--cbl-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--cbl-gold);
+}
+.cbl code, .cbl-mono {
+  font-family: var(--cbl-font-mono);
+  font-size: 13px;
+  color: var(--cbl-fg-body);
+}

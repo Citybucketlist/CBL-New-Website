@@ -1,0 +1,284 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>CBL — Eats & Drinks Flow</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  html, body {
+    margin: 0; background: #060606; color: #fff;
+    font-family: Inter, system-ui, sans-serif; min-height: 100vh;
+  }
+  .page-hdr {
+    padding: 44px 44px 0;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 52px; letter-spacing: -.02em;
+    text-transform: uppercase; line-height: .95;
+  }
+  .page-hdr .gold { color: #C99742; }
+  .page-hdr .it {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-weight: 600; color: #C99742; text-transform: none;
+  }
+  .sub {
+    padding: 10px 44px 0; color: #A8A8A8; font-size: 14px;
+    max-width: 760px; line-height: 1.55;
+  }
+  .stage {
+    padding: 40px 32px 80px;
+    display: flex; gap: 32px; justify-content: flex-start;
+    align-items: flex-start; overflow-x: auto; scrollbar-width: thin;
+  }
+  .col { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .cap {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: #C99742; letter-spacing: .12em; text-transform: uppercase;
+    max-width: 420px; text-align: center;
+  }
+  .cap b { color: #fff; }
+  .section {
+    padding: 60px 44px 24px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    margin-top: 40px;
+  }
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: #C99742; letter-spacing: .14em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Tweak panel */
+  .tweaks {
+    position: fixed; right: 20px; bottom: 20px; z-index: 100;
+    background: #141414; border: 1px solid rgba(201,151,66,.3);
+    border-radius: 12px; padding: 14px 16px; min-width: 220px;
+    display: none; flex-direction: column; gap: 10px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.5);
+  }
+  .tweaks.on { display: flex; }
+  .tweaks h4 {
+    margin: 0; font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 16px; letter-spacing: .08em;
+    text-transform: uppercase; color: #C99742;
+  }
+  .tweaks label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: #888;
+  }
+  .tweaks select {
+    background: #000; border: 1px solid rgba(255,255,255,.15);
+    color: #fff; padding: 6px 8px; border-radius: 6px;
+    font-family: Inter, system-ui; font-size: 12px; width: 100%;
+  }
+
+  @keyframes cblSlideDown {
+    from { transform: translateY(-12px); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="page-hdr">
+  Eats &amp; Drinks — <span class="it">the flow</span>
+</div>
+<p class="sub">
+  Faithful recreation of the Figma landing, plus the interaction it implies:
+  tap a meal time, then a cuisine drops in to narrow the picks.
+  Two options for the cuisine filter surface, then the filtered result state.
+  All six Pittsburgh restaurants from the original mock, with real meal &amp; cuisine tags.
+</p>
+
+<div class="tweaks" id="tweaks">
+  <h4>Tweaks</h4>
+  <label>Cuisine Filter Layout</label>
+  <select id="tk-layout">
+    <option value="dropdown">A · Dropdown sheet (4-up)</option>
+    <option value="chips">B · Horizontal chip row</option>
+  </select>
+  <label>Meal</label>
+  <select id="tk-meal">
+    <option>BREAKFAST</option><option selected>LUNCH</option>
+    <option>DINNER</option><option>DESSERT</option>
+  </select>
+  <label>Cuisine</label>
+  <select id="tk-cuisine"></select>
+</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="lib/primitives.jsx"></script>
+<script type="text/babel" src="lib/cuisine-icons.jsx"></script>
+<script type="text/babel" src="lib/data.jsx"></script>
+<script type="text/babel" src="lib/cards.jsx"></script>
+<script type="text/babel" src="lib/screens.jsx"></script>
+
+<script type="text/babel">
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "layout": "dropdown",
+  "meal": "LUNCH",
+  "cuisine": "AMERICAN"
+}/*EDITMODE-END*/;
+
+function ScreenLabel({ n, title, desc }) {
+  return (
+    <div className="cap">
+      <b>{n} · {title}</b><br />
+      <span style={{ color:'#888', textTransform:'none', letterSpacing:'.02em' }}>{desc}</span>
+    </div>
+  );
+}
+
+function ConnectedPhone({ view, meal, setMeal, cuisine, setCuisine, layout }) {
+  const openPanel = () => setView(view === 'panel' ? 'landing' : 'panel');
+
+  // Each phone renders a fixed step of the flow
+  return (
+    <PhoneFrame>
+      <div style={{ position:'absolute', inset:0 }}>
+        {view === 'landing' && (
+          <LandingView meal={meal} onMealTap={(m)=>{ setMeal(m); }} />
+        )}
+        {view === 'panel' && (layout === 'dropdown'
+          ? <CuisineDropdownView meal={meal} cuisine={cuisine}
+              onMealTap={setMeal} onCuisineTap={setCuisine}
+              onClose={()=>{}} />
+          : <CuisineChipsView meal={meal} cuisine={cuisine}
+              onMealTap={setMeal} onCuisineTap={setCuisine}
+              onClose={()=>{}} />
+        )}
+        {view === 'results' && (
+          <ResultsView meal={meal} cuisine={cuisine}
+            onBack={()=>{}} onMealTap={setMeal} onCuisineTap={setCuisine} />
+        )}
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function App() {
+  const [meal, setMeal] = React.useState(TWEAKS.meal);
+  const [cuisine, setCuisine] = React.useState(TWEAKS.cuisine);
+  const [layout, setLayout] = React.useState(TWEAKS.layout);
+
+  // Tweaks wiring
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const d = e.data || {};
+      if (d.type === '__activate_edit_mode') document.getElementById('tweaks').classList.add('on');
+      if (d.type === '__deactivate_edit_mode') document.getElementById('tweaks').classList.remove('on');
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+
+    // Populate cuisine select
+    const cs = document.getElementById('tk-cuisine');
+    CUISINES.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c; o.textContent = c;
+      if (c === cuisine) o.selected = true;
+      cs.appendChild(o);
+    });
+    document.getElementById('tk-layout').value = layout;
+    document.getElementById('tk-meal').value = meal;
+
+    document.getElementById('tk-layout').onchange = (e) => {
+      setLayout(e.target.value);
+      window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ layout:e.target.value } }, '*');
+    };
+    document.getElementById('tk-meal').onchange = (e) => {
+      setMeal(e.target.value);
+      window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ meal:e.target.value } }, '*');
+    };
+    document.getElementById('tk-cuisine').onchange = (e) => {
+      setCuisine(e.target.value);
+      window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ cuisine:e.target.value } }, '*');
+    };
+
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  return (
+    <div>
+      {/* Flow panel — 3 phones side-by-side showing the steps */}
+      <div className="section" style={{ marginTop: 28, borderTop:'none' }}>
+        <div className="section-eyebrow">The flow · tap meal · pick cuisine · see picks</div>
+      </div>
+      <div className="stage">
+        <div className="col" data-screen-label="01 Landing">
+          <PhoneFrame>
+            <div style={{ position:'absolute', inset:0 }}>
+              <LandingView meal={meal} onMealTap={setMeal} />
+            </div>
+          </PhoneFrame>
+          <ScreenLabel n="01" title="Landing"
+            desc="Original Figma screen. Meal tabs, sponsored feature, restaurant grid — filtered by the active meal." />
+        </div>
+
+        <div className="col" data-screen-label="02 Cuisine Panel">
+          <PhoneFrame>
+            <div style={{ position:'absolute', inset:0 }}>
+              {layout === 'dropdown'
+                ? <CuisineDropdownView meal={meal} cuisine={cuisine}
+                    onMealTap={setMeal} onCuisineTap={setCuisine} onClose={()=>{}} />
+                : <CuisineChipsView meal={meal} cuisine={cuisine}
+                    onMealTap={setMeal} onCuisineTap={setCuisine} onClose={()=>{}} />}
+            </div>
+          </PhoneFrame>
+          <ScreenLabel n="02" title={layout === 'dropdown' ? 'Cuisine — dropdown' : 'Cuisine — chip row'}
+            desc={layout === 'dropdown'
+              ? 'After tapping a meal, the 17 cuisines drop in as a 4-up grid. Uses the exact icons from the Figma library.'
+              : 'Alternate: a horizontal scrolling chip row. Less screen real estate, keeps restaurants in view.'} />
+        </div>
+
+        <div className="col" data-screen-label="03 Results">
+          <PhoneFrame>
+            <div style={{ position:'absolute', inset:0 }}>
+              <ResultsView meal={meal} cuisine={cuisine}
+                onBack={()=>{}} onMealTap={setMeal} onCuisineTap={setCuisine} />
+            </div>
+          </PhoneFrame>
+          <ScreenLabel n="03" title="Filtered results"
+            desc="Meal + cuisine pinned at top. Sponsored spot stays prominent, filtered cards below. Empty-state handled." />
+        </div>
+      </div>
+
+      {/* Variation A/B side-by-side for comparison */}
+      <div className="section">
+        <div className="section-eyebrow">Variant compare · cuisine filter surface</div>
+        <div style={{
+          fontFamily:'"Barlow Condensed",sans-serif', fontWeight:900, fontSize:32,
+          textTransform:'uppercase', letterSpacing:'-.01em',
+        }}>A · Dropdown sheet &nbsp;·&nbsp; <span style={{ color:'#C99742' }}>B · Chip row</span></div>
+      </div>
+      <div className="stage">
+        <div className="col">
+          <PhoneFrame>
+            <div style={{ position:'absolute', inset:0 }}>
+              <CuisineDropdownView meal="LUNCH" cuisine="AMERICAN"
+                onMealTap={()=>{}} onCuisineTap={()=>{}} onClose={()=>{}} />
+            </div>
+          </PhoneFrame>
+          <ScreenLabel n="A" title="Dropdown, 4-up grid"
+            desc="Closest to the Figma cuisine sheet. Shows all 17 options at once with full icon + label." />
+        </div>
+        <div className="col">
+          <PhoneFrame>
+            <div style={{ position:'absolute', inset:0 }}>
+              <CuisineChipsView meal="LUNCH" cuisine="AMERICAN"
+                onMealTap={()=>{}} onCuisineTap={()=>{}} onClose={()=>{}} />
+            </div>
+          </PhoneFrame>
+          <ScreenLabel n="B" title="Horizontal chip row"
+            desc="Keeps the restaurant list in view. Scrolls horizontally — familiar pattern, tight footprint." />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>

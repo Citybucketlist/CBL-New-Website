@@ -1,0 +1,579 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>CBL — Directory Mobile</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  html, body {
+    margin: 0; background: #060606; color: #fff;
+    font-family: Inter, system-ui, sans-serif; min-height: 100vh;
+  }
+  .page-hdr {
+    padding: 44px 44px 0;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 52px; letter-spacing: -.02em;
+    text-transform: uppercase; line-height: .95;
+  }
+  .page-hdr .gold { color: #C99742; }
+  .page-hdr .it {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-weight: 600; color: #C99742; text-transform: none;
+  }
+  .sub {
+    padding: 10px 44px 0; color: #A8A8A8; font-size: 14px;
+    max-width: 760px; line-height: 1.55;
+  }
+  .stage {
+    padding: 40px 32px 80px;
+    display: flex; gap: 32px; justify-content: flex-start;
+    align-items: flex-start; overflow-x: auto; scrollbar-width: thin;
+  }
+  .col { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .cap {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: #C99742; letter-spacing: .12em; text-transform: uppercase;
+    max-width: 420px; text-align: center;
+  }
+  .cap b { color: #fff; }
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: #C99742; letter-spacing: .14em; text-transform: uppercase;
+    padding: 0 44px; margin-top: 28px;
+  }
+</style>
+</head>
+<body>
+<div class="page-hdr">
+  CBL Directory — <span class="it">mobile</span>
+</div>
+<p class="sub">
+  Mobile recreation of <b style="color:#C99742">directory.citybucketlist.com</b> for the in-app
+  experience. Three screens: the Directory hub, the Local Classifieds empty state,
+  and the Boost Your Listing pricing — all using the existing CBL design language.
+</p>
+<div class="section-eyebrow">Directory hub · classifieds · boost</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="lib/primitives.jsx"></script>
+
+<script type="text/babel">
+const GOLD2 = '#C99742';
+const SURF = '#141414';
+const SURF_HI = '#1E1E1E';
+const DISP = '"Barlow Condensed", "Myriad Pro", system-ui';
+
+/* ──────────────────────────────────────────────────────────────────
+   Directory-specific primitives
+   ────────────────────────────────────────────────────────────────── */
+
+function DirectoryTitleBlock() {
+  // CBL DIRECTORY — gold/white wordmark + spiral-notebook glyph
+  return (
+    <div style={{
+      position: 'relative', padding: '14px 18px 16px',
+      background: 'url(assets/imagery/cbl-map-backdrop.jpg) center/cover no-repeat',
+    }}>
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.9))',
+      }} />
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{
+          fontFamily: DISP, fontWeight: 900, fontSize: 48,
+          lineHeight: .9, letterSpacing: '-.02em', textTransform: 'uppercase',
+          flex: 1,
+        }}>
+          <span style={{ color: '#fff' }}>CBL</span>{' '}
+          <span style={{ color: GOLD2 }}>DIRECTORY.</span>
+        </div>
+        {/* spiral-bound notebook + contact silhouette */}
+        <svg width="74" height="86" viewBox="0 0 74 86" style={{ flexShrink: 0 }}>
+          <g fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            {/* notebook body */}
+            <rect x="14" y="6" width="52" height="74" rx="3" />
+            {/* spiral rings */}
+            <circle cx="14" cy="14" r="4" />
+            <circle cx="14" cy="28" r="4" />
+            <circle cx="14" cy="42" r="4" />
+            <circle cx="14" cy="56" r="4" />
+            <circle cx="14" cy="70" r="4" />
+            {/* head */}
+            <circle cx="40" cy="34" r="7" />
+            {/* shoulders */}
+            <path d="M27 56c2-8 8-12 13-12s11 4 13 12" />
+          </g>
+        </svg>
+      </div>
+      <div style={{
+        position: 'relative', marginTop: 4, color: '#B8B8B8',
+        fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+        letterSpacing: '.18em', textTransform: 'uppercase',
+      }}>Local Classifieds · Businesses · Travel · Partners · Shopping</div>
+    </div>
+  );
+}
+
+function NavTab({ label, icon, active }) {
+  return (
+    <div style={{
+      flex: '0 0 auto', minWidth: 92, display: 'flex', flexDirection: 'column',
+      alignItems: 'center', gap: 6, padding: '10px 14px 8px',
+      borderBottom: active ? `2px solid ${GOLD2}` : '2px solid transparent',
+      cursor: 'pointer',
+    }}>
+      <div style={{ color: active ? GOLD2 : '#B8B8B8' }}>{icon}</div>
+      <div style={{
+        fontSize: 11, fontWeight: 600, letterSpacing: '.04em',
+        color: active ? '#fff' : '#9A9A9A', whiteSpace: 'nowrap',
+      }}>{label}</div>
+    </div>
+  );
+}
+
+const NAV = [
+  { key: 'biz',     label: 'Local Businesses',  icon: <PinIcon /> },
+  { key: 'travel',  label: 'Travel Deals',      icon: <PlaneIcon /> },
+  { key: 'part',    label: 'Partners',          icon: <HandshakeIcon /> },
+  { key: 'class',   label: 'Local Classifieds', icon: <DocIcon /> },
+  { key: 'shop',    label: 'Shopping & Offers', icon: <BagIcon /> },
+];
+
+function PinIcon()       { return ico('M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z'); }
+function PlaneIcon()     { return ico('M21 16v-2l-8-5V3.5a1.5 1.5 0 1 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5L21 16z'); }
+function HandshakeIcon() { return ico('M12 5l-3 3-4-1-2 4 5 5 4-2 4 2 5-5-2-4-4 1-3-3z'); }
+function DocIcon()       { return ico('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z'); }
+function BagIcon()       { return ico('M6 7V6a6 6 0 1 1 12 0v1h3l-1 14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2L3 7h3zm2 0h8V6a4 4 0 0 0-8 0v1z'); }
+
+function ico(d) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d={d}/></svg>
+  );
+}
+
+function NavStrip({ active }) {
+  return (
+    <div style={{
+      display: 'flex', overflowX: 'auto',
+      borderBottom: '1px solid rgba(255,255,255,.06)',
+      background: '#000',
+      scrollbarWidth: 'none',
+    }}>
+      {NAV.map(n => (
+        <NavTab key={n.key} {...n} active={n.key === active} />
+      ))}
+    </div>
+  );
+}
+
+function CategoryPill({ label, icon, active, onClick }) {
+  return (
+    <button onClick={onClick} style={{
+      flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 6,
+      padding: '8px 14px', borderRadius: 999,
+      background: active ? GOLD2 : 'transparent',
+      color: active ? '#fff' : '#D8D8D8',
+      border: `1px solid ${active ? GOLD2 : 'rgba(255,255,255,.18)'}`,
+      fontFamily: DISP, fontWeight: 800, fontSize: 13,
+      letterSpacing: '.06em', textTransform: 'uppercase',
+      cursor: 'pointer', whiteSpace: 'nowrap',
+    }}>
+      <span style={{ color: active ? '#fff' : GOLD2 }}>{icon}</span>
+      {label}
+    </button>
+  );
+}
+
+const CATS = [
+  { key: 'all',    label: 'All',         icon: ico('M4 6h16M4 12h16M4 18h16') },
+  { key: 'veh',    label: 'Vehicles',    icon: ico('M3 13l2-5h14l2 5v5h-2a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H3v-5z') },
+  { key: 'elec',   label: 'Electronics', icon: ico('M3 5h18v12H3z M9 19h6v2H9z') },
+  { key: 'furn',   label: 'Furniture',   icon: ico('M4 9h16v6H4z M5 15v4 M19 15v4') },
+  { key: 'serv',   label: 'Services',    icon: ico('M14 7l3 3-9 9H5v-3l9-9z M16 5l3 3') },
+  { key: 'jobs',   label: 'Jobs',        icon: ico('M3 7h18v12H3z M9 7V5h6v2') },
+  { key: 'house',  label: 'Housing',     icon: ico('M3 12l9-8 9 8v8H3z') },
+  { key: 'tix',    label: 'Tickets',     icon: ico('M3 8h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V8z') },
+  { key: 'free',   label: 'Free',        icon: ico('M12 4v16 M4 12h16 M8 8l8 8') },
+];
+
+/* ──────────────────────────────────────────────────────────────────
+   Screens
+   ────────────────────────────────────────────────────────────────── */
+
+function HubView() {
+  // Directory landing — shows the 5 directory sections as cards
+  const items = [
+    { k:'biz',    title: 'Local Businesses', sub: 'Verified spots near you',     icon: <PinIcon />,       count: '2,140 listings' },
+    { k:'travel', title: 'Travel Deals',     sub: 'Trips, stays, getaways',     icon: <PlaneIcon />,     count: 'Updated daily' },
+    { k:'part',   title: 'Partners & Affiliates', sub: 'Brands we trust',       icon: <HandshakeIcon />, count: '48 partners' },
+    { k:'class',  title: 'Local Classifieds', sub: 'Buy · sell · trade',        icon: <DocIcon />,       count: 'Free to post' },
+    { k:'shop',   title: 'Shopping & Offers', sub: 'Coupons & local shops',     icon: <BagIcon />,       count: '320+ offers' },
+  ];
+  return (
+    <div style={{
+      position:'absolute', inset:0, background:'#060606', overflow:'hidden auto',
+    }}>
+      <StatusBar />
+      <WebHeader />
+      <DirectoryTitleBlock />
+      <div style={{ padding: '20px 18px 100px' }}>
+        <div style={{
+          fontFamily: DISP, fontWeight: 900, fontSize: 24,
+          textTransform: 'uppercase', letterSpacing: '-.01em', color: '#fff',
+          marginBottom: 4,
+        }}>Browse the directory</div>
+        <div style={{ color:'#888', fontSize: 13, marginBottom: 18 }}>
+          Five sections, hand-curated for your city.
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap: 10 }}>
+          {items.map(it => (
+            <div key={it.k} style={{
+              background: SURF, border: '1px solid rgba(255,255,255,.06)',
+              borderRadius: 12, padding: '14px 14px 14px 16px',
+              display: 'flex', alignItems: 'center', gap: 14,
+            }}>
+              <div style={{
+                width: 46, height: 46, borderRadius: 10,
+                background: 'rgba(201,151,66,.14)', color: GOLD2,
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <div style={{ transform:'scale(1.4)' }}>{it.icon}</div>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                  fontFamily: DISP, fontWeight: 900, fontSize: 18,
+                  color:'#fff', textTransform:'uppercase', letterSpacing:'-.01em',
+                }}>{it.title}</div>
+                <div style={{ color:'#9A9A9A', fontSize: 12, marginTop: 2 }}>{it.sub}</div>
+              </div>
+              <div style={{
+                color: GOLD2, fontFamily:'JetBrains Mono, monospace',
+                fontSize: 9, letterSpacing:'.14em', textTransform:'uppercase',
+                textAlign:'right', whiteSpace:'nowrap',
+              }}>
+                {it.count}
+                <div style={{ marginTop: 4 }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 1l4 4-4 4" fill="none" stroke={GOLD2} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Buckee promo */}
+        <div style={{
+          marginTop: 22, padding: '14px 16px',
+          background: 'linear-gradient(135deg, rgba(201,151,66,.18), rgba(201,151,66,.04))',
+          border: `1px solid ${GOLD2}`, borderRadius: 14,
+          display: 'flex', alignItems: 'center', gap: 12,
+        }}>
+          <div style={{
+            width: 56, height: 56, flexShrink: 0,
+            background: `url(assets/mascot/buckee_concierge.png) center/contain no-repeat`,
+          }} />
+          <div style={{ flex: 1 }}>
+            <div style={{
+              fontFamily: DISP, fontWeight: 900, fontSize: 16,
+              textTransform: 'uppercase', color: '#fff', letterSpacing: '-.01em',
+            }}>Got a listing?</div>
+            <div style={{ color: '#D4D4D4', fontSize: 12, marginTop: 2 }}>
+              Post free in under a minute.
+            </div>
+          </div>
+          <button style={{
+            background: GOLD2, color:'#fff', border:0, borderRadius: 999,
+            padding:'8px 14px', fontFamily: DISP, fontWeight: 800, fontSize: 11,
+            letterSpacing:'.08em', textTransform:'uppercase', cursor:'pointer',
+          }}>Post +</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ClassifiedsView() {
+  return (
+    <div style={{
+      position:'absolute', inset:0, background:'#060606', overflow:'hidden auto',
+    }}>
+      <StatusBar />
+      <WebHeader />
+      <DirectoryTitleBlock />
+      <NavStrip active="class" />
+
+      <div style={{ padding: '18px 18px 14px' }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              fontFamily: DISP, fontWeight: 900, fontSize: 32,
+              textTransform: 'uppercase', letterSpacing: '-.02em', lineHeight: 1,
+            }}>
+              <span style={{ color: '#fff' }}>Local </span>
+              <span style={{ color: GOLD2 }}>Classifieds</span>
+            </div>
+            <div style={{ color: '#9A9A9A', fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>
+              Buy, sell, and trade with your local community — powered by CBL
+            </div>
+          </div>
+          <button style={{
+            background: 'transparent', color: GOLD2, border: `1px solid ${GOLD2}`,
+            borderRadius: 999, padding: '8px 12px',
+            fontFamily: DISP, fontWeight: 800, fontSize: 11,
+            letterSpacing: '.08em', textTransform: 'uppercase',
+            whiteSpace: 'nowrap', cursor:'pointer',
+          }}>+ Post Listing</button>
+        </div>
+      </div>
+
+      {/* Search bar */}
+      <div style={{ padding: '0 18px 12px' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: SURF, border: '1px solid rgba(255,255,255,.08)',
+          borderRadius: 10, padding: '10px 12px',
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          <input placeholder="What are you looking for?" style={{
+            flex: 1, background: 'transparent', border: 0, outline: 'none',
+            color: '#fff', fontSize: 13,
+          }} />
+          <div style={{
+            display:'flex', alignItems:'center', gap: 4,
+            color: GOLD2, fontFamily:'JetBrains Mono, monospace',
+            fontSize: 10, letterSpacing: '.08em',
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+            ATL
+          </div>
+        </div>
+      </div>
+
+      {/* Category pills */}
+      <div style={{
+        display: 'flex', gap: 6, padding: '0 18px 18px',
+        overflowX: 'auto', scrollbarWidth: 'none',
+      }}>
+        {CATS.map(c => (
+          <CategoryPill key={c.key} label={c.label} icon={c.icon} active={c.key === 'all'} />
+        ))}
+      </div>
+
+      {/* Empty state */}
+      <div style={{
+        margin: '20px 18px 0', padding: '40px 24px',
+        background: SURF, border: '1px dashed rgba(255,255,255,.12)',
+        borderRadius: 14, textAlign:'center',
+      }}>
+        <div style={{ display:'flex', justifyContent:'center', marginBottom: 14 }}>
+          <svg width="58" height="58" viewBox="0 0 58 58">
+            <g fill="none" stroke="#5A5A5A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 6h22l8 8v38a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+              <path d="M36 6v8h8" />
+              <path d="M20 26h18 M20 34h18 M20 42h12" />
+            </g>
+          </svg>
+        </div>
+        <div style={{
+          fontFamily: DISP, fontWeight: 900, fontSize: 22,
+          textTransform: 'uppercase', color: '#fff', letterSpacing: '-.01em',
+        }}>No listings yet</div>
+        <div style={{ color: '#888', fontSize: 13, marginTop: 6 }}>
+          Be the first to post in your area!
+        </div>
+        <button style={{
+          marginTop: 16,
+          background: 'transparent', color: GOLD2, border: `1px solid ${GOLD2}`,
+          borderRadius: 999, padding: '10px 18px',
+          fontFamily: DISP, fontWeight: 800, fontSize: 12,
+          letterSpacing: '.08em', textTransform: 'uppercase', cursor: 'pointer',
+        }}>+ Post a Listing</button>
+      </div>
+
+      {/* Pickup ride promo */}
+      <div style={{
+        margin: '18px 18px 24px', padding: '14px 16px',
+        background: SURF_HI, borderRadius: 12,
+        display: 'flex', alignItems: 'center', gap: 12,
+        border: '1px solid rgba(255,255,255,.06)',
+      }}>
+        <div style={{
+          width: 40, height: 40, flexShrink: 0, borderRadius: 10,
+          background: 'rgba(201,151,66,.16)', color: GOLD2,
+          display:'flex', alignItems:'center', justifyContent:'center',
+        }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 13l2-5h12l2 5v5h-2a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H3v-5z"/>
+          </svg>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontFamily: DISP, fontWeight: 900, fontSize: 14,
+            color: '#fff', textTransform: 'uppercase', letterSpacing: '-.01em',
+            lineHeight: 1.2,
+          }}>Need a ride to pick up your purchase?</div>
+          <div style={{ color: '#9A9A9A', fontSize: 11, marginTop: 3 }}>
+            Safe, tracked meetups for classified transactions
+          </div>
+        </div>
+        <button style={{
+          background: 'transparent', color: GOLD2, border: `1px solid ${GOLD2}`,
+          borderRadius: 999, padding: '7px 11px',
+          fontFamily: DISP, fontWeight: 800, fontSize: 10,
+          letterSpacing: '.08em', textTransform: 'uppercase',
+          whiteSpace:'nowrap', cursor:'pointer',
+        }}>Book Ride</button>
+      </div>
+    </div>
+  );
+}
+
+function BoostView() {
+  const tiers = [
+    {
+      name: 'Basic', price: 'Free', per: 'forever', accent: false,
+      bullets: ['Text-only listing', '30 days active', 'Category placement'],
+      cta: 'Post Free Ad', ctaStyle: 'ghost',
+    },
+    {
+      name: 'Photo Boost', price: '$2.99', per: 'per listing', accent: false,
+      bullets: ['Up to 5 photos', '30 days active', 'Photo gallery'],
+      cta: 'Add Photos', ctaStyle: 'ghost',
+    },
+    {
+      name: 'Featured', price: '$4.99', per: 'per week', accent: true, badge: 'Most Popular',
+      bullets: ['Up to 10 photos', '60 days active', 'Featured badge', 'Top of search results', 'Gold border highlight'],
+      cta: 'Go Featured', ctaStyle: 'solid',
+    },
+    {
+      name: 'Business Pro', price: '$29.99', per: 'per month', accent: false,
+      bullets: ['Unlimited photos', 'Unlimited listings', 'CBL Partner badge', 'Auto-featured', 'Analytics dashboard'],
+      cta: 'Go Pro', ctaStyle: 'ghost',
+    },
+  ];
+
+  return (
+    <div style={{
+      position:'absolute', inset:0, background:'#060606', overflow:'hidden auto',
+    }}>
+      <StatusBar />
+      <WebHeader />
+
+      <div style={{ padding: '24px 20px 12px', textAlign: 'center' }}>
+        <div style={{
+          fontFamily:'JetBrains Mono, monospace', fontSize: 10,
+          color: GOLD2, letterSpacing: '.18em', textTransform:'uppercase',
+        }}>Classifieds · Pricing</div>
+        <div style={{
+          marginTop: 8,
+          fontFamily: DISP, fontWeight: 900, fontSize: 36,
+          textTransform: 'uppercase', letterSpacing: '-.02em', lineHeight: .95,
+        }}>
+          <span style={{ color:'#fff' }}>Boost Your </span>
+          <span style={{ color: GOLD2 }}>Listing</span>
+        </div>
+        <div style={{ color: '#A8A8A8', fontSize: 12, marginTop: 8, lineHeight: 1.5 }}>
+          Free listings work — but upgraded listings sell faster
+        </div>
+      </div>
+
+      <div style={{ padding: '14px 16px 100px', display:'flex', flexDirection:'column', gap: 12 }}>
+        {tiers.map(t => (
+          <div key={t.name} style={{
+            position: 'relative',
+            background: t.accent ? `linear-gradient(180deg, rgba(201,151,66,.12), rgba(201,151,66,0))` : SURF,
+            border: t.accent ? `1.5px solid ${GOLD2}` : '1px solid rgba(255,255,255,.08)',
+            borderRadius: 14, padding: '18px 18px 18px',
+          }}>
+            {t.badge && (
+              <div style={{
+                position:'absolute', top: -10, left: '50%', transform:'translateX(-50%)',
+                background: GOLD2, color:'#fff', fontFamily: DISP, fontWeight: 900,
+                fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase',
+                padding: '4px 12px', borderRadius: 999, whiteSpace: 'nowrap',
+              }}>{t.badge}</div>
+            )}
+            <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', gap: 10 }}>
+              <div style={{
+                fontFamily: DISP, fontWeight: 900, fontSize: 22,
+                color: '#fff', textTransform:'uppercase', letterSpacing:'-.01em',
+              }}>{t.name}</div>
+              <div style={{ textAlign:'right' }}>
+                <div style={{
+                  fontFamily: DISP, fontWeight: 900, fontSize: 24,
+                  color: t.accent ? GOLD2 : '#fff', letterSpacing:'-.02em', lineHeight: 1,
+                }}>{t.price}</div>
+                <div style={{
+                  color: '#888', fontSize: 10, marginTop: 2,
+                  fontFamily: 'JetBrains Mono, monospace', letterSpacing: '.06em',
+                }}>{t.per}</div>
+              </div>
+            </div>
+            <div style={{
+              marginTop: 12, display:'flex', flexDirection:'column', gap: 6,
+            }}>
+              {t.bullets.map((b, i) => (
+                <div key={i} style={{
+                  display:'flex', alignItems:'center', gap: 8,
+                  color: '#D4D4D4', fontSize: 12,
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" style={{ flexShrink:0 }}>
+                    <path d="M2 6l3 3 5-6" fill="none" stroke={GOLD2} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {b}
+                </div>
+              ))}
+            </div>
+            <button style={{
+              marginTop: 14, width:'100%',
+              background: t.ctaStyle === 'solid' ? GOLD2 : 'transparent',
+              color: t.ctaStyle === 'solid' ? '#fff' : GOLD2,
+              border: t.ctaStyle === 'solid' ? 0 : `1px solid ${GOLD2}`,
+              borderRadius: 999, padding: '11px 14px',
+              fontFamily: DISP, fontWeight: 800, fontSize: 12,
+              letterSpacing: '.08em', textTransform: 'uppercase', cursor:'pointer',
+            }}>{t.cta}</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ScreenLabel({ n, title, desc }) {
+  return (
+    <div className="cap">
+      <b>{n} · {title}</b><br />
+      <span style={{ color:'#888', textTransform:'none', letterSpacing:'.02em' }}>{desc}</span>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div className="stage">
+      <div className="col" data-screen-label="01 Hub">
+        <PhoneFrame><HubView /></PhoneFrame>
+        <ScreenLabel n="01" title="Directory hub"
+          desc="Mobile entry point. The 5 directory sections as cards, with a Buckee post-CTA at the bottom." />
+      </div>
+      <div className="col" data-screen-label="02 Classifieds">
+        <PhoneFrame><ClassifiedsView /></PhoneFrame>
+        <ScreenLabel n="02" title="Local Classifieds"
+          desc="Empty state matching the live page — search, category pills, no-listings card, and the pickup-ride promo." />
+      </div>
+      <div className="col" data-screen-label="03 Boost">
+        <PhoneFrame><BoostView /></PhoneFrame>
+        <ScreenLabel n="03" title="Boost your listing"
+          desc="Pricing tiers stacked for mobile — Basic free, Photo Boost, Featured (highlighted), Business Pro." />
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 288 227.01">
+  
+  <defs>
+    
+  </defs>
+  <rect class="st0" x="48.99" y="34.24" width="34.19" height="22.84"></rect>
+  <rect class="st0" x="48.99" y="79.95" width="34.19" height="22.84"></rect>
+  <rect class="st0" x="48.99" y="124.95" width="34.19" height="22.84"></rect>
+  <rect class="st0" x="48.99" y="170.31" width="34.19" height="22.84"></rect>
+  <circle class="st0" cx="171.9" cy="99.72" r="16.11"></circle>
+  <path class="st0" d="M179.81,114.07s21.98,10.88,21.98,28.14c-13.26,0-20.88,0-20.88,0h-12.56s-14.3,0-27.56,0c0-17.26,21.98-28.14,21.98-28.14"></path>
+  <path class="st0" d="M66.08,195.01v21.86h162.23c10.7,0,10.7-10.7,10.7-10.7V22.43c0-10.7-12.09-11.16-12.09-11.16H66.08v20.47"></path>
+  <line class="st0" x1="103.18" y1="28.48" x2="103.18" y2="200.13"></line>
+  <line class="st0" x1="66.08" y1="57.09" x2="66.08" y2="79.95"></line>
+  <line class="st0" x1="66.08" y1="104.4" x2="66.08" y2="121.51"></line>
+  <line class="st0" x1="66.08" y1="152.5" x2="66.08" y2="169.61"></line>
+</svg>

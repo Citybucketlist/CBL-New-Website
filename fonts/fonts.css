@@ -1,0 +1,90 @@
+/* citybucketlist.com — brand fonts (self-hosted)
+   Include via: <link rel="stylesheet" href="/brand_fonts/fonts.css"> */
+
+/* ─── Barlow Condensed (display) ─────────────────────────────── */
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal; font-weight: 600; font-display: swap;
+  src: url("barlow-condensed/barlow-condensed-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal; font-weight: 700; font-display: swap;
+  src: url("barlow-condensed/barlow-condensed-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal; font-weight: 800; font-display: swap;
+  src: url("barlow-condensed/barlow-condensed-800.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal; font-weight: 900; font-display: swap;
+  src: url("barlow-condensed/barlow-condensed-900.woff2") format("woff2");
+}
+
+/* ─── Inter (body / UI) ──────────────────────────────────────── */
+@font-face {
+  font-family: "Inter";
+  font-style: normal; font-weight: 400; font-display: swap;
+  src: url("inter/inter-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal; font-weight: 500; font-display: swap;
+  src: url("inter/inter-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal; font-weight: 600; font-display: swap;
+  src: url("inter/inter-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal; font-weight: 700; font-display: swap;
+  src: url("inter/inter-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal; font-weight: 800; font-display: swap;
+  src: url("inter/inter-800.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal; font-weight: 900; font-display: swap;
+  src: url("inter/inter-900.woff2") format("woff2");
+}
+
+/* ─── Playfair Display (editorial italic) ────────────────────── */
+@font-face {
+  font-family: "Playfair Display";
+  font-style: italic; font-weight: 400; font-display: swap;
+  src: url("playfair-display/playfair-display-400-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal; font-weight: 600; font-display: swap;
+  src: url("playfair-display/playfair-display-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: italic; font-weight: 600; font-display: swap;
+  src: url("playfair-display/playfair-display-600-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal; font-weight: 700; font-display: swap;
+  src: url("playfair-display/playfair-display-700.woff2") format("woff2");
+}
+
+/* ─── JetBrains Mono (mono / eyebrow) ────────────────────────── */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal; font-weight: 400; font-display: swap;
+  src: url("jetbrains-mono/jetbrains-mono-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal; font-weight: 500; font-display: swap;
+  src: url("jetbrains-mono/jetbrains-mono-500.woff2") format("woff2");
+}
