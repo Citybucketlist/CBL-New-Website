@@ -1,0 +1,402 @@
+# CBL Mascot Intro Videos — Claude Integration Guide
+
+## What This Is
+
+Three animated mascot intro videos for the City Bucket List website. Each mascot is a talking character that introduces their role to visitors. They sit side-by-side on a black background with a centered play button — no text overlays, no borders, no autoplay.
+
+## The Three Characters
+
+| ID | Name | Role | Video dimensions | Duration |
+|----|------|------|-----------------|----------|
+| `buckee` | Buckee | Concierge | 960 × 960 | ~15s |
+| `citty` | Citty | Host & Hospitality | 880 × 1040 | ~15s |
+| `listy` | Listy | Rides & Reservations | 896 × 1008 | ~12s |
+
+## Video URLs (authoritative — do not change)
+
+```
+Buckee: https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/572b0c2b6cc54ad3a8d2f3da744ee462.mp4
+Citty:  https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/5223faf859f04687951b11efe82ba874.mp4
+Listy:  https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/d6e5e3cf35004c3486d238a646133f4c.mp4
+```
+
+All videos: MP4, black background baked in, audio narration baked in, no text overlays.
+
+## Files in This Package
+
+| File | Use when |
+|------|---------|
+| `MascotVideo.jsx` | React / Next.js project |
+| `mascot-videos.html` | Any non-React site, iframe embed, or quick preview |
+
+## React Usage
+
+```jsx
+import MascotGrid from './MascotVideo';
+
+// Drop anywhere on the page — fills its container width
+<MascotGrid />
+```
+
+**Requirements:** React 17+ with hooks. Zero external dependencies.
+
+**What it renders:**
+- A `display: flex` row of three video cards on `background: #000`
+- Each card shows a centered translucent play button until clicked
+- Clicking a card plays it with audio (user gesture = browser audio policy satisfied)
+- Clicking a playing card pauses it; playing a new card auto-pauses the previous one
+- Videos reset to the start when they finish
+
+## Standalone HTML Usage
+
+Open `mascot-videos.html` directly in a browser, or embed as an iframe:
+
+```html
+<iframe
+  src="/path/to/mascot-videos.html"
+  width="100%"
+  height="420"
+  style="border:none; background:#000;"
+  allow="autoplay"
+></iframe>
+```
+
+Or copy the three sections (`<style>`, `.mascot-row` div, `<script>`) into your existing HTML page.
+
+## Integration Notes for Claude Code
+
+- **Do not add `overflow: hidden` or `border-radius` to the card wrappers** — it causes white flicker on some browsers when the video hasn't loaded yet.
+- **Do not set `object-fit: cover` with a fixed height** — the videos have different aspect ratios (roughly square but slightly varied). Use `width: 100%; height: auto` so each scales naturally.
+- **Audio works without a mute toggle** because playback is user-initiated (click). Do not add `muted` attribute or an unmute button.
+- **Background colour is `#000`** throughout — on the body, on each card wrapper, and as the page background. If placing on a light page, wrap in a dark section.
+- **The `maxWidth: 1080px` container** keeps the row from getting too wide on large monitors. You can adjust this.
+- **Mobile:** cards stack vertically at ≤ 600px viewport width.
+
+## Common Tasks
+
+### Change the order of characters
+
+In `MascotVideo.jsx`, reorder the objects in the `MASCOTS` array.
+
+### Make it loop
+
+In `MascotVideo.jsx`, in `handleEnded`, after `setPlaying(null)` add:
+```js
+// Auto-advance to next character
+const idx = MASCOTS.findIndex(m => m.id === id);
+if (idx < MASCOTS.length - 1) handlePlay(MASCOTS[idx + 1].id);
+```
+
+### Change the play button size
+
+In `MascotVideo.jsx`, change `width: '20%'` on the SVG icon styles.
+In `mascot-videos.html`, change `.play-btn svg { width: 20%; }`.
+
+### Add character names back (if needed later)
+
+Add a `<p>` element inside each card div, absolutely positioned at the bottom. Example:
+```jsx
+<p style={{ position: 'absolute', bottom: 12, left: 0, right: 0,
+            textAlign: 'center', color: '#fff', fontSize: 14 }}>
+  {mascot.name}
+</p>
+```
+
+## Asset Provenance
+
+Videos were produced with:
+1. **ElevenLabs V3 TTS** — voiceover narration per character
+2. **veed-fabric-lipsync** — character image + TTS audio → talking-head video on black background
+3. Final MP4 files are the direct lipsync outputs — no post-processing needed
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CBL Mascots</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ── Three-card row ── */
+    .mascot-row {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      max-width: 1080px;
+      align-items: center;
+    }
+
+    /* ── Individual card — black bg, NO border, NO border-radius clip ── */
+    .card {
+      flex: 1;
+      position: relative;
+      background: #000;
+      cursor: pointer;
+      /* Each video has a different aspect ratio; let it size naturally */
+    }
+
+    .card video {
+      width: 100%;
+      height: auto;
+      display: block;
+      /* object-fit not needed — video fills card at native ratio */
+    }
+
+    /* ── Play / Pause overlay ── */
+    .play-btn {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .play-btn svg {
+      width: 20%;
+      height: auto;
+      min-width: 40px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+    }
+
+    .card.playing .play-btn { opacity: 0; }
+    .card.playing:hover .play-btn { opacity: 1; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .mascot-row { flex-direction: column; max-width: 360px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mascot-row" id="row"></div>
+
+<script>
+  const MASCOTS = [
+    {
+      id: 'buckee',
+      url: 'https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/572b0c2b6cc54ad3a8d2f3da744ee462.mp4',
+    },
+    {
+      id: 'citty',
+      url: 'https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/5223faf859f04687951b11efe82ba874.mp4',
+    },
+    {
+      id: 'listy',
+      url: 'https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/d6e5e3cf35004c3486d238a646133f4c.mp4',
+    },
+  ];
+
+  const row = document.getElementById('row');
+  const cards = [];
+
+  const playIcon = `
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.85)" stroke-width="2.5"/>
+      <polygon points="32,24 60,40 32,56" fill="rgba(255,255,255,0.95)"/>
+    </svg>`;
+
+  const pauseIcon = `
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.85)" stroke-width="2.5"/>
+      <rect x="26" y="23" width="10" height="34" rx="3" fill="rgba(255,255,255,0.95)"/>
+      <rect x="44" y="23" width="10" height="34" rx="3" fill="rgba(255,255,255,0.95)"/>
+    </svg>`;
+
+  MASCOTS.forEach((mascot, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const video = document.createElement('video');
+    video.src = mascot.url;
+    video.playsInline = true;
+    video.preload = 'auto';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'play-btn';
+    overlay.innerHTML = playIcon;
+
+    card.appendChild(video);
+    card.appendChild(overlay);
+    row.appendChild(card);
+    cards.push({ card, video, overlay });
+
+    card.addEventListener('click', () => {
+      if (video.paused || video.ended) {
+        cards.forEach(({ video: v, card: c, overlay: o }, j) => {
+          if (j !== i) {
+            v.pause();
+            c.classList.remove('playing');
+            o.innerHTML = playIcon;
+          }
+        });
+        video.play();
+        card.classList.add('playing');
+        overlay.innerHTML = pauseIcon;
+      } else {
+        video.pause();
+        card.classList.remove('playing');
+        overlay.innerHTML = playIcon;
+      }
+    });
+
+    video.addEventListener('ended', () => {
+      card.classList.remove('playing');
+      overlay.innerHTML = playIcon;
+      video.currentTime = 0;
+    });
+  });
+</script>
+</body>
+</html>
+
+/**
+ * CBL Mascot Intro Videos — React Component (Final)
+ * - Three mascots side by side on pure black
+ * - No text, no borders, no white backgrounds
+ * - Centered play button overlay — click to play with audio
+ * - Playing one auto-pauses the others
+ *
+ * Usage:
+ *   import MascotGrid from './MascotVideo';
+ *   <MascotGrid />
+ */
+
+import React, { useRef, useState, useCallback } from 'react';
+
+const MASCOTS = [
+  {
+    id: 'buckee',
+    url: 'https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/572b0c2b6cc54ad3a8d2f3da744ee462.mp4',
+  },
+  {
+    id: 'citty',
+    url: 'https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/5223faf859f04687951b11efe82ba874.mp4',
+  },
+  {
+    id: 'listy',
+    url: 'https://cdn.galaxy.ai/user_366xyt7NI0XIYqXXItVcjkNHDKl/d6e5e3cf35004c3486d238a646133f4c.mp4',
+  },
+];
+
+const PlayIcon = () => (
+  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"
+    style={{ width: '20%', height: 'auto', minWidth: 40,
+             filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.6))' }}>
+    <circle cx="40" cy="40" r="38" fill="rgba(0,0,0,0.55)"
+      stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" />
+    <polygon points="32,24 60,40 32,56" fill="rgba(255,255,255,0.95)" />
+  </svg>
+);
+
+const PauseIcon = () => (
+  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"
+    style={{ width: '20%', height: 'auto', minWidth: 40,
+             filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.6))' }}>
+    <circle cx="40" cy="40" r="38" fill="rgba(0,0,0,0.55)"
+      stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" />
+    <rect x="26" y="23" width="10" height="34" rx="3" fill="rgba(255,255,255,0.95)" />
+    <rect x="44" y="23" width="10" height="34" rx="3" fill="rgba(255,255,255,0.95)" />
+  </svg>
+);
+
+function MascotCard({ mascot, isPlaying, onPlay, onPause, onEnded, videoRef }) {
+  return (
+    <div
+      onClick={() => isPlaying ? onPause() : onPlay()}
+      style={{
+        flex: 1,
+        position: 'relative',
+        backgroundColor: '#000',
+        cursor: 'pointer',
+        minWidth: 0,
+      }}
+    >
+      <video
+        ref={videoRef}
+        src={mascot.url}
+        playsInline
+        preload="auto"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+        onEnded={onEnded}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: isPlaying ? 0 : 1,
+          transition: 'opacity 0.2s ease',
+          pointerEvents: 'none',
+        }}
+      >
+        {isPlaying ? <PauseIcon /> : <PlayIcon />}
+      </div>
+    </div>
+  );
+}
+
+export default function MascotGrid() {
+  const [playing, setPlaying] = useState(null);
+  const videoRefs = useRef({});
+
+  const handlePlay = useCallback((id) => {
+    MASCOTS.forEach(({ id: otherId }) => {
+      if (otherId !== id) {
+        const v = videoRefs.current[otherId];
+        if (v) { v.pause(); v.currentTime = 0; }
+      }
+    });
+    videoRefs.current[id]?.play();
+    setPlaying(id);
+  }, []);
+
+  const handlePause = useCallback((id) => {
+    videoRefs.current[id]?.pause();
+    setPlaying(null);
+  }, []);
+
+  const handleEnded = useCallback((id) => {
+    const v = videoRefs.current[id];
+    if (v) v.currentTime = 0;
+    setPlaying(null);
+  }, []);
+
+  return (
+    <div style={{
+      display: 'flex',
+      gap: '16px',
+      width: '100%',
+      maxWidth: '1080px',
+      margin: '0 auto',
+      backgroundColor: '#000',
+      alignItems: 'center',
+    }}>
+      {MASCOTS.map((mascot) => (
+        <MascotCard
+          key={mascot.id}
+          mascot={mascot}
+          isPlaying={playing === mascot.id}
+          onPlay={() => handlePlay(mascot.id)}
+          onPause={() => handlePause(mascot.id)}
+          onEnded={() => handleEnded(mascot.id)}
+          videoRef={(el) => { videoRefs.current[mascot.id] = el; }}
+        />
+      ))}
+    </div>
+  );
+}
